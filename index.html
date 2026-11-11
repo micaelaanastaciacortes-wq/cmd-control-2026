@@ -1,459 +1,803 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>State Grid - CMD Control 2026</title>
+    <title>SGBH - Central de Procedimentos CMD 2026</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        sg: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                            dark: '#062c2a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.4);
+            border-radius: 9999px;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(75, 85, 99, 0.5);
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+<body class="h-full bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-200">
+    <div id="app" class="min-h-screen flex flex-col">
 
-    <!-- Header Corporativo -->
-    <header class="bg-teal-800 text-white shadow-md">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center space-x-3">
-                <div class="bg-white/10 p-2 rounded-lg border border-teal-600">
-                    <i data-lucide="shield-check" class="w-8 h-8 text-teal-200"></i>
+        <!-- Top Header Navigation -->
+        <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur border-b border-slate-200 dark:border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    
+                    <!-- Logo / Identity -->
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-sg-600 to-sg-900 flex items-center justify-center text-white shadow-md font-bold text-lg">
+                            SG
+                        </div>
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h1 class="text-base font-bold tracking-tight text-slate-900 dark:text-white">State Grid Brazil Holding</h1>
+                                <span class="bg-sg-100 text-sg-800 dark:bg-sg-900/80 dark:text-sg-100 text-xs px-2 py-0.5 rounded-full font-medium">CMD 2026</span>
+                            </div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Contract Management Division — Guia Operacional</p>
+                        </div>
+                    </div>
+
+                    <!-- Actions Right -->
+                    <div class="flex items-center space-x-3">
+                        <!-- Quick Search -->
+                        <div class="relative hidden md:block w-64">
+                            <input type="text" id="global-search" placeholder="Pesquisar passos ou pastas..." 
+                                class="w-full pl-9 pr-4 py-1.5 text-xs bg-slate-100 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-sg-500 dark:text-slate-200">
+                            <i data-lucide="search" class="w-4 h-4 absolute left-2.5 top-2 text-slate-400"></i>
+                        </div>
+
+                        <!-- Theme Toggle Button -->
+                        <button id="theme-toggle" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                            <i data-lucide="moon" class="w-4 h-4 hidden dark:block"></i>
+                            <i data-lucide="sun" class="w-4 h-4 block dark:hidden"></i>
+                        </button>
+                    </div>
                 </div>
-                <div>
-                    <span class="text-xs uppercase tracking-wider text-teal-200 font-semibold">State Grid Brazil Holding</span>
-                    <h1 class="text-xl font-bold" data-i18n="headerTitle">Contract Management Division (CMD)</h1>
+
+                <!-- Main Tabs Bar -->
+                <div class="flex space-x-2 border-t border-slate-100 dark:border-slate-800/60 overflow-x-auto py-2 custom-scrollbar">
+                    <button id="tab-btn-1" onclick="switchTab(1)" class="tab-btn px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg flex items-center space-x-2 transition whitespace-nowrap bg-sg-600 text-white shadow-sm">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                        <span>1. Atualização de Base & Dashboard CMD</span>
+                    </button>
+                    <button id="tab-btn-2" onclick="switchTab(2)" class="tab-btn px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg flex items-center space-x-2 transition whitespace-nowrap text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                        <i data-lucide="file-check-2" class="w-4 h-4"></i>
+                        <span>2. Verificação Lista Comercial & Recebimento</span>
+                    </button>
                 </div>
             </div>
-            
-            <div class="flex items-center gap-3">
-                <!-- Seletor de Idioma -->
-                <div class="flex items-center bg-teal-900/60 border border-teal-600 rounded-lg p-1">
-                    <i data-lucide="globe" class="w-4 h-4 text-teal-200 ml-2"></i>
-                    <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-transparent text-white text-sm font-medium px-2 py-1 focus:outline-none cursor-pointer">
-                        <option value="pt" class="bg-teal-900 text-white">Português</option>
-                        <option value="en" class="bg-teal-900 text-white">English</option>
-                        <option value="zh" class="bg-teal-900 text-white">中文</option>
-                    </select>
-                </div>
+        </header>
 
-                <!-- Barra de Pesquisa -->
-                <div class="relative w-64">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <i data-lucide="search" class="w-4 h-4 text-teal-300"></i>
-                    </span>
-                    <input type="text" id="searchInput" onkeyup="filterContent()" data-i18n-placeholder="searchPlaceholder" placeholder="Pesquisar procedimentos..." class="w-full pl-9 pr-4 py-1.5 bg-teal-900/50 border border-teal-600 rounded-lg text-sm text-white placeholder-teal-300 focus:outline-none focus:ring-2 focus:ring-white">
-                </div>
-            </div>
-        </div>
-    </header>
+        <!-- Main Body Area -->
+        <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-    <!-- Navegação por Abas -->
-    <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-20">
-        <div class="max-w-7xl mx-auto px-4 flex space-x-8">
-            <button onclick="switchTab('tab1')" id="btn-tab1" class="tab-btn py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 border-teal-600 text-teal-700">
-                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-                <span data-i18n="tab1Name">Atualização CMD & FUP 2026</span>
-            </button>
-            <button onclick="switchTab('tab2')" id="btn-tab2" class="tab-btn py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300">
-                <i data-lucide="file-text" class="w-4 h-4"></i>
-                <span data-i18n="tab2Name">Preenchimento e Gestão de Recebimento</span>
-            </button>
-        </div>
-    </nav>
-
-    <!-- Conteúdo Principal -->
-    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
-
-        <!-- SEÇÃO 1: Atualização CMD 2026 -->
-        <div id="content-tab1" class="tab-content space-y-6">
-            <div class="bg-teal-50 border-l-4 border-teal-600 p-4 rounded-r-lg shadow-sm">
-                <h2 class="text-lg font-semibold text-teal-900" data-i18n="sec1Title">Guia Passo a Passo de Consolidação das Planilhas FUP e Atualização de Dados</h2>
-                <p class="text-sm text-teal-700 mt-1" data-i18n="sec1Subtitle">Siga rigorosamente a sequência de 6 passos para garantir a integridade dos indicadores do Dashboard.</p>
+            <!-- Global Toast Notification -->
+            <div id="toast" class="fixed bottom-5 right-5 z-50 bg-slate-900 text-white dark:bg-sg-600 text-xs sm:text-sm px-4 py-3 rounded-lg shadow-xl flex items-center space-x-2 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+                <i data-lucide="check-circle-2" class="w-4 h-4 text-sg-500 dark:text-white"></i>
+                <span id="toast-message">Caminho copiado com sucesso!</span>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 searchable-grid">
+            <!-- ========================================== -->
+            <!-- TAB 1: PROCEDIMENTO ATUALIZAÇÃO CMD 2026 -->
+            <!-- ========================================== -->
+            <section id="tab-content-1" class="space-y-6">
                 
-                <!-- Passo 1 -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
-                    <div>
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="bg-teal-100 text-teal-800 text-xs font-bold px-2.5 py-1 rounded-full" data-i18n="step1Badge">Passo 1</span>
-                            <i data-lucide="folder-open" class="w-5 h-5 text-teal-600"></i>
-                        </div>
-                        <h3 class="font-bold text-slate-800 text-base mb-1" data-i18n="step1Title">Copiar FUPs</h3>
-                        <p class="text-sm text-slate-600 mb-4" data-i18n="step1Desc">Copiar as planilhas FUP da pasta da Rede de Procurement para início do ciclo.</p>
-                        <div class="bg-slate-100 p-2.5 rounded text-xs font-mono text-slate-700 break-all select-all mb-3">
-                            Rede > sgbtfiles2 > PROCUREMENT > 01 - Procurement Process > 2026 > FUP 2026
-                        </div>
+                <!-- Hero Info Banner -->
+                <div class="bg-gradient-to-r from-sg-900 via-sg-800 to-slate-900 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+                    <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
+                        <i data-lucide="database" class="w-64 h-64"></i>
                     </div>
-                    <button onclick="copyToClipboard(this)" class="w-full mt-2 bg-slate-100 hover:bg-teal-50 text-teal-700 text-xs font-semibold py-2 px-3 rounded border border-slate-200 hover:border-teal-300 flex items-center justify-center gap-1.5 transition-colors">
-                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> <span data-i18n="copyPathBtn">Copiar Caminho</span>
-                    </button>
-                </div>
-
-                <!-- Passo 2 -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
-                    <div>
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="bg-teal-100 text-teal-800 text-xs font-bold px-2.5 py-1 rounded-full" data-i18n="step2Badge">Passo 2</span>
-                            <i data-lucide="upload-cloud" class="w-5 h-5 text-teal-600"></i>
+                    <div class="relative z-10 max-w-3xl">
+                        <div class="inline-flex items-center space-x-2 bg-sg-700/60 backdrop-blur text-sg-100 text-xs px-3 py-1 rounded-full mb-3 border border-sg-500/30">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                            <span>Procedimento de Rotina Periódica</span>
                         </div>
-                        <h3 class="font-bold text-slate-800 text-base mb-1" data-i18n="step2Title">Colar FUPs</h3>
-                        <p class="text-sm text-slate-600 mb-4" data-i18n="step2Desc">Inserir os arquivos FUP atualizados na pasta FUP 2026 do SharePoint CMD.</p>
-                        <div class="bg-slate-100 p-2.5 rounded text-xs font-mono text-slate-700 break-all select-all mb-3">
-                            State Grid Brazil Holding > Contract Management Division - Documentos > General > 01. Contracts Division - Control > 01. APP > FUP 2026
-                        </div>
-                    </div>
-                    <button onclick="copyToClipboard(this)" class="w-full mt-2 bg-slate-100 hover:bg-teal-50 text-teal-700 text-xs font-semibold py-2 px-3 rounded border border-slate-200 hover:border-teal-300 flex items-center justify-center gap-1.5 transition-colors">
-                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> <span data-i18n="copyPathBtn">Copiar Caminho</span>
-                    </button>
-                </div>
-
-                <!-- Passo 3 -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
-                    <div>
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="bg-teal-100 text-teal-800 text-xs font-bold px-2.5 py-1 rounded-full" data-i18n="step3Badge">Passo 3</span>
-                            <i data-lucide="file-spreadsheet" class="w-5 h-5 text-teal-600"></i>
-                        </div>
-                        <h3 class="font-bold text-slate-800 text-base mb-1" data-i18n="step3Title">Copiar Base APP</h3>
-                        <p class="text-sm text-slate-600 mb-4" data-i18n="step3Desc">Copiar o arquivo '2026 Procurement Plan - Base' da pasta de origem.</p>
-                        <div class="bg-slate-100 p-2.5 rounded text-xs font-mono text-slate-700 break-all select-all mb-3">
-                            Rede > sgbtfiles2 > PROCUREMENT > 31 - Base Procurement 2023 > Base APP Consolidado
-                        </div>
-                    </div>
-                    <button onclick="copyToClipboard(this)" class="w-full mt-2 bg-slate-100 hover:bg-teal-50 text-teal-700 text-xs font-semibold py-2 px-3 rounded border border-slate-200 hover:border-teal-300 flex items-center justify-center gap-1.5 transition-colors">
-                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> <span data-i18n="copyPathBtn">Copiar Caminho</span>
-                    </button>
-                </div>
-
-                <!-- Passo 4 -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
-                    <div>
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="bg-teal-100 text-teal-800 text-xs font-bold px-2.5 py-1 rounded-full" data-i18n="step4Badge">Passo 4</span>
-                            <i data-lucide="folder-input" class="w-5 h-5 text-teal-600"></i>
-                        </div>
-                        <h3 class="font-bold text-slate-800 text-base mb-1" data-i18n="step4Title">Colar Base APP</h3>
-                        <p class="text-sm text-slate-600 mb-4" data-i18n="step4Desc">Colar na pasta de destino 'APP 2026' no ambiente do Contracts Division.</p>
-                        <div class="bg-slate-100 p-2.5 rounded text-xs font-mono text-slate-700 break-all select-all mb-3">
-                            State Grid Brazil Holding > Contract Management Division - Documentos > General > 01. Contracts Division - Control > 01. APP > APP 2026
-                        </div>
-                    </div>
-                    <button onclick="copyToClipboard(this)" class="w-full mt-2 bg-slate-100 hover:bg-teal-50 text-teal-700 text-xs font-semibold py-2 px-3 rounded border border-slate-200 hover:border-teal-300 flex items-center justify-center gap-1.5 transition-colors">
-                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> <span data-i18n="copyPathBtn">Copiar Caminho</span>
-                    </button>
-                </div>
-
-                <!-- Passo 5 -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
-                    <div>
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="bg-teal-100 text-teal-800 text-xs font-bold px-2.5 py-1 rounded-full" data-i18n="step5Badge">Passo 5</span>
-                            <i data-lucide="shield-alert" class="w-5 h-5 text-teal-600"></i>
-                        </div>
-                        <h3 class="font-bold text-slate-800 text-base mb-1" data-i18n="step5Title">Abrir CMD Control</h3>
-                        <p class="text-sm text-slate-600 mb-4" data-i18n="step5Desc">Abrir a planilha mestre 'CMD Control 2026'. Habilitar macros e verificar nuvem.</p>
-                        <div class="bg-slate-100 p-2.5 rounded text-xs font-mono text-slate-700 break-all select-all mb-3">
-                            State Grid Brazil Holding > Contract Management Division - Documentos > General > 01. Contracts Division - Control > 01. APP
-                        </div>
-                    </div>
-                    <button onclick="copyToClipboard(this)" class="w-full mt-2 bg-slate-100 hover:bg-teal-50 text-teal-700 text-xs font-semibold py-2 px-3 rounded border border-slate-200 hover:border-teal-300 flex items-center justify-center gap-1.5 transition-colors">
-                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> <span data-i18n="copyPathBtn">Copiar Caminho</span>
-                    </button>
-                </div>
-
-                <!-- Passo 6 -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
-                    <div>
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="bg-teal-100 text-teal-800 text-xs font-bold px-2.5 py-1 rounded-full" data-i18n="step6Badge">Passo 6</span>
-                            <i data-lucide="play-circle" class="w-5 h-5 text-teal-600"></i>
-                        </div>
-                        <h3 class="font-bold text-slate-800 text-base mb-1" data-i18n="step6Title">Rodar Macro & Refresh</h3>
-                        <p class="text-sm text-slate-600 mb-4" data-i18n="step6Desc">Clicar em 'Update FUP' no Dashboard e efetuar 'Dados > Atualizar Tudo'.</p>
-                        <div class="bg-amber-50 border border-amber-200 p-2.5 rounded text-xs text-amber-800 mb-3 font-medium" data-i18n="step6Alert">
-                            ⚠️ Validar totalizadores e aguardar sincronização do OneDrive.
-                        </div>
-                    </div>
-                    <div class="bg-teal-50 text-teal-800 text-xs font-semibold py-2 px-3 rounded border border-teal-200 flex items-center justify-center gap-1.5">
-                        <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> <span data-i18n="step6Done">Ciclo Concluído</span>
+                        <h2 class="text-xl sm:text-2xl font-bold">Consolidação FUP & Atualização de Dados do Dashboard 2026</h2>
+                        <p class="mt-2 text-xs sm:text-sm text-sg-100/90 leading-relaxed">
+                            Guia operacional passo a passo para extração e cópia dos arquivos FUP e Base APP da rede corporativa de Procurement para o ambiente do SharePoint da Divisão de Gestão de Contratos (CMD), seguido da execução da macro de sincronização e atualização de indicadores.
+                        </p>
                     </div>
                 </div>
 
-            </div>
-        </div>
+                <!-- Process Steps Overview (6 Steps Timeline Card Bar) -->
+                <div class="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4 flex items-center space-x-2">
+                        <i data-lucide="list-ordered" class="w-4 h-4 text-sg-600"></i>
+                        <span>Visão Geral do Processo (6 Passos Sequenciais)</span>
+                    </h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                        <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800 text-center hover:border-sg-500/50 transition">
+                            <span class="w-6 h-6 mx-auto rounded-full bg-sg-600 text-white font-bold text-xs flex items-center justify-center mb-1">1</span>
+                            <p class="text-xs font-semibold text-slate-800 dark:text-slate-200">Copiar FUPs</p>
+                            <p class="text-[10px] text-slate-500 mt-0.5">Origem: Rede Procurement</p>
+                        </div>
+                        <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800 text-center hover:border-sg-500/50 transition">
+                            <span class="w-6 h-6 mx-auto rounded-full bg-sg-600 text-white font-bold text-xs flex items-center justify-center mb-1">2</span>
+                            <p class="text-xs font-semibold text-slate-800 dark:text-slate-200">Colar FUPs</p>
+                            <p class="text-[10px] text-slate-500 mt-0.5">Destino: SharePoint CMD</p>
+                        </div>
+                        <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800 text-center hover:border-sg-500/50 transition">
+                            <span class="w-6 h-6 mx-auto rounded-full bg-sg-600 text-white font-bold text-xs flex items-center justify-center mb-1">3</span>
+                            <p class="text-xs font-semibold text-slate-800 dark:text-slate-200">Copiar Base APP</p>
+                            <p class="text-[10px] text-slate-500 mt-0.5">Origem: 31-Base Procurement</p>
+                        </div>
+                        <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800 text-center hover:border-sg-500/50 transition">
+                            <span class="w-6 h-6 mx-auto rounded-full bg-sg-600 text-white font-bold text-xs flex items-center justify-center mb-1">4</span>
+                            <p class="text-xs font-semibold text-slate-800 dark:text-slate-200">Colar Base APP</p>
+                            <p class="text-[10px] text-slate-500 mt-0.5">Destino: Pasta APP 2026</p>
+                        </div>
+                        <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800 text-center hover:border-sg-500/50 transition">
+                            <span class="w-6 h-6 mx-auto rounded-full bg-sg-600 text-white font-bold text-xs flex items-center justify-center mb-1">5</span>
+                            <p class="text-xs font-semibold text-slate-800 dark:text-slate-200">Abrir CMD Control</p>
+                            <p class="text-[10px] text-slate-500 mt-0.5">Habilitar Conteúdo</p>
+                        </div>
+                        <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800 text-center hover:border-sg-500/50 transition">
+                            <span class="w-6 h-6 mx-auto rounded-full bg-sg-600 text-white font-bold text-xs flex items-center justify-center mb-1">6</span>
+                            <p class="text-xs font-semibold text-slate-800 dark:text-slate-200">Macro & Refresh</p>
+                            <p class="text-[10px] text-slate-500 mt-0.5">Update FUP + Atualizar Tudo</p>
+                        </div>
+                    </div>
+                </div>
 
-        <!-- SEÇÃO 2: Preenchimento e Gestão de Recebimento -->
-        <div id="content-tab2" class="tab-content space-y-6 hidden">
-            <div class="bg-teal-50 border-l-4 border-teal-600 p-4 rounded-r-lg shadow-sm">
-                <h2 class="text-lg font-semibold text-teal-900" data-i18n="sec2Title">Gestão de Recebimento & Verificação da Lista Comercial</h2>
-                <p class="text-sm text-teal-700 mt-1" data-i18n="sec2Subtitle">Procedimento operacional padrão para análise de Sub CP, registro no Receipt Control e minuta.</p>
-            </div>
+                <!-- Two Column Details Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 searchable-grid">
+                    <!-- Left Column: Interactive Step-by-Step Directory Map (2 cols wide) -->
+                    <div class="lg:col-span-2 space-y-6">
+                        
+                        <!-- Directory Mapping Box -->
+                        <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+                                    <i data-lucide="folder-tree" class="w-5 h-5 text-sg-600"></i>
+                                    <span>Mapeamento de Diretórios (Passos 1 a 4)</span>
+                                </h3>
+                                <span class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 px-2 py-1 rounded">Rede vs. SharePoint</span>
+                            </div>
+
+                            <!-- Path List Cards -->
+                            <div class="space-y-4">
+                                
+                                <!-- Card Step 1 & 2 -->
+                                <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/80">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="px-2 py-0.5 bg-sg-600 text-white text-xs font-bold rounded">Passos 1 & 2</span>
+                                            <h4 class="text-sm font-semibold text-slate-900 dark:text-white">Atualização dos Arquivos FUP 2026</h4>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Rede Source -->
+                                    <div class="mt-3 space-y-2">
+                                        <div class="text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center space-x-1">
+                                            <i data-lucide="hard-drive" class="w-3.5 h-3.5 text-blue-500"></i>
+                                            <span>Origem (Rede de Procurement):</span>
+                                        </div>
+                                        <div class="flex items-center justify-between bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 font-mono text-xs text-slate-700 dark:text-slate-300 overflow-x-auto">
+                                            <span class="truncate">Rede &gt; sgbtfiles2 &gt; PROCUREMENT &gt; 01 - Procurement Process &gt; 2026 &gt; FUP 2026</span>
+                                            <button onclick="copyText('Rede > sgbtfiles2 > PROCUREMENT > 01 - Procurement Process > 2026 > FUP 2026')" class="ml-2 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-500 hover:text-sg-600 transition flex-shrink-0" title="Copiar caminho">
+                                                <i data-lucide="copy" class="w-4 h-4"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- SharePoint Destination -->
+                                    <div class="mt-3 space-y-2">
+                                        <div class="text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center space-x-1">
+                                            <i data-lucide="cloud-upload" class="w-3.5 h-3.5 text-sg-500"></i>
+                                            <span>Destino (SharePoint CMD):</span>
+                                        </div>
+                                        <div class="flex items-center justify-between bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 font-mono text-xs text-slate-700 dark:text-slate-300 overflow-x-auto">
+                                            <span class="truncate">State Grid Brazil Holding &gt; Contract Management Division - Documentos &gt; General &gt; 01. Contracts Division - Control &gt; 01. APP &gt; FUP 2026</span>
+                                            <button onclick="copyText('State Grid Brazil Holding > Contract Management Division - Documentos > General > 01. Contracts Division - Control > 01. APP > FUP 2026')" class="ml-2 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-500 hover:text-sg-600 transition flex-shrink-0" title="Copiar caminho">
+                                                <i data-lucide="copy" class="w-4 h-4"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Card Step 3 & 4 -->
+                                <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/80">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="px-2 py-0.5 bg-sg-600 text-white text-xs font-bold rounded">Passos 3 & 4</span>
+                                            <h4 class="text-sm font-semibold text-slate-900 dark:text-white">Consolidação Base APP 2026 ("2026 Procurement Plan - Base")</h4>
+                                        </div>
+                                    </div>
+
+                                    <!-- Rede Source APP -->
+                                    <div class="mt-3 space-y-2">
+                                        <div class="text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center space-x-1">
+                                            <i data-lucide="hard-drive" class="w-3.5 h-3.5 text-blue-500"></i>
+                                            <span>Origem (Rede de Procurement Base):</span>
+                                        </div>
+                                        <div class="flex items-center justify-between bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 font-mono text-xs text-slate-700 dark:text-slate-300 overflow-x-auto">
+                                            <span class="truncate">Rede &gt; sgbtfiles2 &gt; PROCUREMENT &gt; 31 - Base Procurement 2023 &gt; Base APP Consolidado</span>
+                                            <button onclick="copyText('Rede > sgbtfiles2 > PROCUREMENT > 31 - Base Procurement 2023 > Base APP Consolidado')" class="ml-2 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-500 hover:text-sg-600 transition flex-shrink-0" title="Copiar caminho">
+                                                <i data-lucide="copy" class="w-4 h-4"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- SharePoint Destination APP -->
+                                    <div class="mt-3 space-y-2">
+                                        <div class="text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center space-x-1">
+                                            <i data-lucide="cloud-upload" class="w-3.5 h-3.5 text-sg-500"></i>
+                                            <span>Destino (SharePoint APP 2026):</span>
+                                        </div>
+                                        <div class="flex items-center justify-between bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 font-mono text-xs text-slate-700 dark:text-slate-300 overflow-x-auto">
+                                            <span class="truncate">State Grid Brazil Holding &gt; Contract Management Division - Documentos &gt; General &gt; 01. Contracts Division - Control &gt; 01. APP &gt; APP 2026</span>
+                                            <button onclick="copyText('State Grid Brazil Holding > Contract Management Division - Documentos > General > 01. Contracts Division - Control > 01. APP > APP 2026')" class="ml-2 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-500 hover:text-sg-600 transition flex-shrink-0" title="Copiar caminho">
+                                                <i data-lucide="copy" class="w-4 h-4"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Card Step 5 & 6 -->
+                                <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/80">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="px-2 py-0.5 bg-sg-600 text-white text-xs font-bold rounded">Passos 5 & 6</span>
+                                            <h4 class="text-sm font-semibold text-slate-900 dark:text-white">Execução no Excel Mestre ("CMD Control 2026")</h4>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700 text-xs space-y-2">
+                                        <p class="text-slate-700 dark:text-slate-300">
+                                            <strong>Localização da Planilha Mestre:</strong><br>
+                                            <span class="font-mono text-[11px] text-sg-700 dark:text-sg-400">State Grid Brazil Holding &gt; Contract Management Division - Documentos &gt; General &gt; 01. Contracts Division - Control &gt; 01. APP &gt; CMD Control 2026.xlsm</span>
+                                        </p>
+                                        <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-2">
+                                            <span class="px-2.5 py-1 bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 rounded font-medium text-[11px] flex items-center space-x-1">
+                                                <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>
+                                                <span>1. Habilitar Conteúdo / Macros ao abrir</span>
+                                            </span>
+                                            <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 rounded font-medium text-[11px] flex items-center space-x-1">
+                                                <i data-lucide="play-circle" class="w-3.5 h-3.5"></i>
+                                                <span>2. Clicar no botão 'Update FUP' (Dashboard)</span>
+                                            </span>
+                                            <span class="px-2.5 py-1 bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300 rounded font-medium text-[11px] flex items-center space-x-1">
+                                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                                                <span>3. Menu Dados &gt; Atualizar Tudo</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Dashboard Structure & Key Indicators Card -->
+                        <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <h3 class="text-base font-bold text-slate-900 dark:text-white mb-4 flex items-center space-x-2">
+                                <i data-lucide="layout-dashboard" class="w-5 h-5 text-sg-600"></i>
+                                <span>Estrutura de Indicadores do Dashboard Atualizado</span>
+                            </h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-gradient-to-b from-slate-50 to-white dark:from-slate-800/40 dark:to-slate-900">
+                                    <div class="w-8 h-8 rounded-lg bg-sg-100 dark:bg-sg-900/60 text-sg-700 dark:text-sg-300 flex items-center justify-center mb-3">
+                                        <i data-lucide="pie-chart" class="w-4 h-4"></i>
+                                    </div>
+                                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">Status da Aquisição</h4>
+                                    <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                                        Acompanhamento do ciclo de compras: processos em andamento, concluídos, cancelados e planejados.
+                                    </p>
+                                </div>
+
+                                <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-gradient-to-b from-slate-50 to-white dark:from-slate-800/40 dark:to-slate-900">
+                                    <div class="w-8 h-8 rounded-lg bg-sg-100 dark:bg-sg-900/60 text-sg-700 dark:text-sg-300 flex items-center justify-center mb-3">
+                                        <i data-lucide="users" class="w-4 h-4"></i>
+                                    </div>
+                                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">Visão por Comprador</h4>
+                                    <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                                        Carga de trabalho individual e distribuição dos processos de contratação por gestor/comprador.
+                                    </p>
+                                </div>
+
+                                <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-gradient-to-b from-slate-50 to-white dark:from-slate-800/40 dark:to-slate-900">
+                                    <div class="w-8 h-8 rounded-lg bg-sg-100 dark:bg-sg-900/60 text-sg-700 dark:text-sg-300 flex items-center justify-center mb-3">
+                                        <i data-lucide="trending-up" class="w-4 h-4"></i>
+                                    </div>
+                                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">Curva S & Prazos</h4>
+                                    <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                                        Evolução física acumulada versus o cronograma de contratações do plano anual APP 2026.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Right Column: Interactive Validation Checklist & Rules (1 col wide) -->
+                    <div class="space-y-6">
+                        
+                        <!-- Prerequisites Box -->
+                        <div class="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center space-x-2">
+                                <i data-lucide="check-square" class="w-4 h-4 text-sg-600"></i>
+                                <span>Pré-requisitos Obrigatórios</span>
+                            </h3>
+                            <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                                <li class="flex items-start space-x-2">
+                                    <i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i>
+                                    <span>Verificar se a sincronização local do OneDrive/SharePoint está concluída (ícone verde).</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i>
+                                    <span>Garantir que as macros foram habilitadas ("Habilitar Conteúdo") no alerta de segurança do Excel.</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i>
+                                    <span>Certificar que não há outros usuários bloqueando o arquivo em modo exclusivo de escrita.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Post-Update Validation Checklist -->
+                        <div class="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+                                    <i data-lucide="clipboard-check" class="w-4 h-4 text-sg-600"></i>
+                                    <span>Checklist de Validação</span>
+                                </h3>
+                                <span id="checklist-counter" class="text-[10px] font-bold bg-sg-100 text-sg-800 dark:bg-sg-900 dark:text-sg-200 px-2 py-0.5 rounded-full">0/4 OK</span>
+                            </div>
+
+                            <p class="text-[11px] text-slate-500 mb-3">Marque os itens à medida que concluir a verificação pós-atualização:</p>
+
+                            <div class="space-y-2.5" id="checklist-group-1">
+                                <label class="flex items-start space-x-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 cursor-pointer hover:bg-slate-100/80 transition">
+                                    <input type="checkbox" onchange="updateChecklist()" class="mt-0.5 rounded border-slate-300 text-sg-600 focus:ring-sg-500">
+                                    <span class="text-xs text-slate-700 dark:text-slate-300">
+                                        <strong>Nomenclaturas Padrão:</strong> Confirmar se os arquivos nas pastas FUP e APP mantiveram o padrão exato exigido.
+                                    </span>
+                                </label>
+
+                                <label class="flex items-start space-x-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 cursor-pointer hover:bg-slate-100/80 transition">
+                                    <input type="checkbox" onchange="updateChecklist()" class="mt-0.5 rounded border-slate-300 text-sg-600 focus:ring-sg-500">
+                                    <span class="text-xs text-slate-700 dark:text-slate-300">
+                                        <strong>Sem Erros de Fórmula:</strong> Garantir ausência de erros como <code>#REF!</code> ou <code>#N/A</code> no Dashboard.
+                                    </span>
+                                </label>
+
+                                <label class="flex items-start space-x-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 cursor-pointer hover:bg-slate-100/80 transition">
+                                    <input type="checkbox" onchange="updateChecklist()" class="mt-0.5 rounded border-slate-300 text-sg-600 focus:ring-sg-500">
+                                    <span class="text-xs text-slate-700 dark:text-slate-300">
+                                        <strong>Bate de Totais:</strong> Conferir se a quantidade total de processos coincide com a planilha de origem.
+                                    </span>
+                                </label>
+
+                                <label class="flex items-start space-x-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 cursor-pointer hover:bg-slate-100/80 transition">
+                                    <input type="checkbox" onchange="updateChecklist()" class="mt-0.5 rounded border-slate-300 text-sg-600 focus:ring-sg-500">
+                                    <span class="text-xs text-slate-700 dark:text-slate-300">
+                                        <strong>AutoSave / Nuvem:</strong> Salvar o arquivo e verificar o ícone de sincronização no OneDrive.
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Cloud Save Warning Box -->
+                        <div class="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200 text-xs space-y-2">
+                            <div class="flex items-center space-x-2 font-bold text-amber-800 dark:text-amber-300">
+                                <i data-lucide="cloud-off" class="w-4 h-4"></i>
+                                <span>Aviso sobre Cloud Save / AutoSave</span>
+                            </div>
+                            <p class="leading-relaxed">
+                                A planilha <strong>CMD Control 2026</strong> possui salvamento automático no SharePoint. Caso o AutoSave esteja desativado em sua estação, redobre o cuidado ao salvar manualmente para não sobrescrever dados concorrentes.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- ========================================== -->
+            <!-- TAB 2: VERIFICAÇÃO LISTA COMERCIAL & RECEBIMENTO -->
+            <!-- ========================================== -->
+            <section id="tab-content-2" class="space-y-6 hidden">
                 
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between">
-                    <div>
-                        <span class="bg-teal-100 text-teal-800 text-xs font-bold px-2.5 py-1 rounded-full" data-i18n="phase1Badge">Fase 1</span>
-                        <h3 class="font-bold text-slate-800 text-base mt-2 mb-1" data-i18n="phase1Title">Triagem & Acesso</h3>
-                        <p class="text-sm text-slate-600" data-i18n="phase1Desc">Recebimento do e-mail do Pro Planning e abertura da planilha CMD Control 2026 no OneDrive.</p>
+                <!-- Hero Banner Section 2 -->
+                <div class="bg-gradient-to-r from-sg-900 via-slate-900 to-sg-800 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+                    <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
+                        <i data-lucide="file-check-2" class="w-64 h-64"></i>
                     </div>
-                    <div class="mt-4 pt-3 border-t border-slate-100 text-xs font-semibold text-teal-700 flex items-center gap-1">
-                        <i data-lucide="mail" class="w-3.5 h-3.5"></i> <span data-i18n="phase1Tag">E-mail Pro Planning</span>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between">
-                    <div>
-                        <span class="bg-teal-100 text-teal-800 text-xs font-bold px-2.5 py-1 rounded-full" data-i18n="phase2Badge">Fase 2</span>
-                        <h3 class="font-bold text-slate-800 text-base mt-2 mb-1" data-i18n="phase2Title">Registro & Pasta</h3>
-                        <p class="text-sm text-slate-600" data-i18n="phase2Desc">Cadastro do Sub CP na aba Receipt Control e criação da pasta do projeto no formato padrão.</p>
-                    </div>
-                    <div class="mt-4 pt-3 border-t border-slate-100 text-xs font-mono text-slate-600">
-                        00. [Sub CP] [Nome]
+                    <div class="relative z-10 max-w-3xl">
+                        <div class="inline-flex items-center space-x-2 bg-sg-700/60 backdrop-blur text-sg-100 text-xs px-3 py-1 rounded-full mb-3 border border-sg-500/30">
+                            <i data-lucide="mail-check" class="w-3.5 h-3.5"></i>
+                            <span>Procedimento de Análise Inicial & Triagem</span>
+                        </div>
+                        <h2 class="text-xl sm:text-2xl font-bold">Verificação da Lista Comercial & Gestão de Recebimento</h2>
+                        <p class="mt-2 text-xs sm:text-sm text-sg-100/90 leading-relaxed">
+                            Procedimento de entrada para solicitações enviadas pelo time do Pro Planning: da abertura do e-mail ao preenchimento da aba <code>Receipt Control</code>, organização do diretório em <code>05. Projects &gt; 2026</code> e devolutiva para autorizar a fase de Bidding.
+                        </p>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between">
-                    <div>
-                        <span class="bg-teal-100 text-teal-800 text-xs font-bold px-2.5 py-1 rounded-full" data-i18n="phase3Badge">Fase 3</span>
-                        <h3 class="font-bold text-slate-800 text-base mt-2 mb-1" data-i18n="phase3Title">Análise Técnica</h3>
-                        <p class="text-sm text-slate-600" data-i18n="phase3Desc">Avaliação da lista comercial, preenchimento de datas e parecer de minuta com senha CMD01.</p>
+                <!-- 4 Major Macro Phases Flow -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-start space-x-3">
+                        <div class="w-8 h-8 rounded-lg bg-sg-600 text-white font-bold flex items-center justify-center shrink-0 text-sm">1</div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Triagem & Acesso</h4>
+                            <p class="text-xs text-slate-500 mt-1">E-mail do Pro Planning e abertura da planilha CMD Control 2026.</p>
+                        </div>
                     </div>
-                    <div class="mt-4 pt-3 border-t border-slate-100 text-xs font-semibold text-amber-700 flex items-center gap-1">
-                        <i data-lucide="lock" class="w-3.5 h-3.5"></i> Senha: <span class="font-mono">CMD01</span>
+
+                    <div class="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-start space-x-3">
+                        <div class="w-8 h-8 rounded-lg bg-sg-600 text-white font-bold flex items-center justify-center shrink-0 text-sm">2</div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Registro & Pasta</h4>
+                            <p class="text-xs text-slate-500 mt-1">Cadastro do Sub CP e criação da pasta padrão do projeto.</p>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-start space-x-3">
+                        <div class="w-8 h-8 rounded-lg bg-sg-600 text-white font-bold flex items-center justify-center shrink-0 text-sm">3</div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Análise Técnica</h4>
+                            <p class="text-xs text-slate-500 mt-1">Verificação da Lista Comercial e campos no Receipt Control.</p>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-start space-x-3">
+                        <div class="w-8 h-8 rounded-lg bg-sg-600 text-white font-bold flex items-center justify-center shrink-0 text-sm">4</div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Devolutiva & Senha</h4>
+                            <p class="text-xs text-slate-500 mt-1">Ajustes ou envio com minuta bloqueada (senha CMD01).</p>
+                        </div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between">
-                    <div>
-                        <span class="bg-teal-100 text-teal-800 text-xs font-bold px-2.5 py-1 rounded-full" data-i18n="phase4Badge">Fase 4</span>
-                        <h3 class="font-bold text-slate-800 text-base mt-2 mb-1" data-i18n="phase4Title">Devolutiva & Bidding</h3>
-                        <p class="text-sm text-slate-600" data-i18n="phase4Desc">Reenvio da lista comercial bloqueada e minuta ao Pro Planning para início do processo de bidding.</p>
+                <!-- Step-by-Step Detailed Breakdown -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                    <!-- Left 2 Columns: Detailed Steps -->
+                    <div class="lg:col-span-2 space-y-6">
+
+                        <!-- Detailed Steps 1 & 2 Card -->
+                        <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
+                            
+                            <!-- Step 1 & 2 Header -->
+                            <div class="flex items-center space-x-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                                <span class="w-7 h-7 rounded-full bg-sg-600 text-white font-bold text-xs flex items-center justify-center">1-2</span>
+                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Recebimento, Registro e Organização no Repositório</h3>
+                            </div>
+
+                            <!-- Step 1 content -->
+                            <div class="space-y-2">
+                                <h4 class="text-xs font-bold text-sg-700 dark:text-sg-400 uppercase tracking-wide">1º Passo — Verificação do E-mail e Acesso</h4>
+                                <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                                    Localizar a solicitação enviada pela equipe do Pro Planning na caixa de entrada e abrir a planilha mestre <strong>CMD Control 2026</strong> localizada no SharePoint:
+                                </p>
+                                <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800/80 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 font-mono text-xs text-slate-700 dark:text-slate-300 overflow-x-auto">
+                                    <span class="truncate">State Grid Brazil Holding &gt; Contract Management Division - Documentos &gt; General &gt; 01. Contracts Division - Control &gt; 01. APP</span>
+                                    <button onclick="copyText('State Grid Brazil Holding > Contract Management Division - Documentos > General > 01. Contracts Division - Control > 01. APP')" class="ml-2 p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-500 hover:text-sg-600 transition flex-shrink-0" title="Copiar caminho">
+                                        <i data-lucide="copy" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Step 2 content -->
+                            <div class="space-y-2 pt-2">
+                                <h4 class="text-xs font-bold text-sg-700 dark:text-sg-400 uppercase tracking-wide">2º Passo — Inclusão do Sub CP e Estruturação da Pasta</h4>
+                                <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                                    Copiar o número identificador do <strong>Sub CP</strong> informado no e-mail e colar na aba <code>Receipt Control</code> (exatamente na linha posterior à última preenchida na coluna Sub CP).
+                                </p>
+
+                                <div class="p-3 bg-slate-50 dark:bg-slate-800/80 rounded-lg border border-slate-200 dark:border-slate-700/80 space-y-2">
+                                    <span class="text-xs font-semibold text-slate-800 dark:text-slate-200 block">Caminho para Criação da Pasta de Arquivo do Projeto:</span>
+                                    <div class="flex items-center justify-between bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 font-mono text-xs text-slate-700 dark:text-slate-300 overflow-x-auto">
+                                        <span class="truncate">... &gt; 01. Contracts Division - Control &gt; 05. Projects &gt; 2026</span>
+                                        <button onclick="copyText('State Grid Brazil Holding > Contract Management Division - Documentos > General > 01. Contracts Division - Control > 05. Projects > 2026')" class="ml-2 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-500 hover:text-sg-600 transition flex-shrink-0" title="Copiar caminho">
+                                            <i data-lucide="copy" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+                                    <div class="bg-sg-50 dark:bg-sg-950/50 p-2.5 rounded border border-sg-200 dark:border-sg-800/50">
+                                        <span class="text-[11px] font-bold text-sg-800 dark:text-sg-200 block">Modelo de Nomenclatura Padrão Obrigatório da Pasta:</span>
+                                        <code class="text-xs font-mono font-bold text-sg-700 dark:text-sg-400">00. [Número do Sub CP] [Resumo do projeto]</code>
+                                        <p class="text-[10px] text-slate-500 mt-1">Exemplo: <em>00. CP2026-ADS-LD-03-03 [STE Dry Reactor Arbitration]</em></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Detailed Steps 3 & 4 Card: Field Mapping -->
+                        <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
+                            
+                            <!-- Header 3-4 -->
+                            <div class="flex items-center space-x-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                                <span class="w-7 h-7 rounded-full bg-sg-600 text-white font-bold text-xs flex items-center justify-center">3-4</span>
+                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Análise da Lista Comercial e Preenchimento dos Campos</h3>
+                            </div>
+
+                            <p class="text-xs text-slate-600 dark:text-slate-300">
+                                Na aba <code>Receipt Control</code> da planilha <strong>CMD Control 2026</strong>, realize a análise minuciosa dos anexos e preencha rigorosamente as seguintes colunas de controle:
+                            </p>
+
+                            <!-- Table / Grid of Form Fields -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                                
+                                <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700/70">
+                                    <span class="font-bold text-sg-700 dark:text-sg-400 block mb-0.5">Document Analysis</span>
+                                    <span class="text-slate-500 dark:text-slate-400">Data de recebimento da solicitação no e-mail.</span>
+                                </div>
+
+                                <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700/70">
+                                    <span class="font-bold text-sg-700 dark:text-sg-400 block mb-0.5">Document Reviewed</span>
+                                    <span class="text-slate-500 dark:text-slate-400">Data efetiva de envio da resposta/parecer.</span>
+                                </div>
+
+                                <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700/70">
+                                    <span class="font-bold text-sg-700 dark:text-sg-400 block mb-0.5">Responsible for Analysis</span>
+                                    <span class="text-slate-500 dark:text-slate-400">Nome do analista responsável da equipe CMD.</span>
+                                </div>
+
+                                <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700/70">
+                                    <span class="font-bold text-sg-700 dark:text-sg-400 block mb-0.5">Initial documents are OK?</span>
+                                    <span class="text-slate-500 dark:text-slate-400">Status de aprovação preliminar (Sim / Não).</span>
+                                </div>
+
+                                <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700/70">
+                                    <span class="font-bold text-sg-700 dark:text-sg-400 block mb-0.5">Comments of adjustment</span>
+                                    <span class="text-slate-500 dark:text-slate-400">Descrição detalhada de pendências ou ressalvas.</span>
+                                </div>
+
+                                <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700/70">
+                                    <span class="font-bold text-sg-700 dark:text-sg-400 block mb-0.5">CMD Contract suggested? / Template</span>
+                                    <span class="text-slate-500 dark:text-slate-400">Indicação da minuta modelo padronizada.</span>
+                                </div>
+
+                                <div class="p-3 bg-slate-50 dark:bg-slate-800/50 sm:col-span-2 rounded-lg border border-slate-200 dark:border-slate-700/70">
+                                    <span class="font-bold text-sg-700 dark:text-sg-400 block mb-0.5">LD Support?</span>
+                                    <span class="text-slate-500 dark:text-slate-400">Indicar se há suporte do departamento jurídico (LD) e detalhar na coluna ao lado.</span>
+                                </div>
+
+                            </div>
+
+                        </div>
+
                     </div>
-                    <div class="mt-4 pt-3 border-t border-slate-100 text-xs font-semibold text-teal-700 flex items-center gap-1">
-                        <i data-lucide="send" class="w-3.5 h-3.5"></i> <span data-i18n="phase4Tag">Início do Bidding</span>
+
+                    <!-- Right Column: Returns & Bidding Authorization -->
+                    <div class="space-y-6">
+                        
+                        <!-- Decision Tree / Return Options -->
+                        <div class="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+                                <i data-lucide="git-fork" class="w-4 h-4 text-sg-600"></i>
+                                <span>Fluxo de Devolutiva & Alinhamento</span>
+                            </h3>
+
+                            <!-- Option A -->
+                            <div class="p-3.5 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 text-xs space-y-1">
+                                <div class="flex items-center space-x-1.5 font-bold text-rose-800 dark:text-rose-300">
+                                    <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                                    <span>Opção A: Documentos Requerem Ajustes</span>
+                                </div>
+                                <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                                    Responder diretamente ao <strong>ID (solicitante)</strong> descrevendo as correções necessárias e aguardar o envio dos arquivos corrigidos antes da liberação.
+                                </p>
+                            </div>
+
+                            <!-- Option B -->
+                            <div class="p-3.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40 text-xs space-y-1">
+                                <div class="flex items-center space-x-1.5 font-bold text-emerald-800 dark:text-emerald-300">
+                                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                                    <span>Opção B: Documentos Aprovados (OK)</span>
+                                </div>
+                                <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                                    Responder ao <strong>Pro Planning</strong> reencaminhando a lista commercial bloqueada e a minuta de contrato vinculada ao escopo do processo.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Password & Security Card -->
+                        <div class="bg-gradient-to-br from-sg-900 to-slate-900 text-white rounded-xl p-5 border border-sg-700/50 shadow-md space-y-3">
+                            <div class="flex items-center space-x-2 text-sg-400">
+                                <i data-lucide="key-round" class="w-5 h-5"></i>
+                                <h4 class="text-xs font-bold uppercase tracking-wider text-sg-200">Senha de Proteção de Minutas</h4>
+                            </div>
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                Para bloquear a Lista Commercial e a Minuta antes do envio final ao Pro Planning para autorização do <strong>Bidding</strong>, utilize a senha oficial:
+                            </p>
+                            <div class="flex items-center justify-between bg-slate-950/80 p-3 rounded-lg border border-sg-600/50">
+                                <span class="text-sm font-mono font-bold tracking-widest text-sg-400">CMD01</span>
+                                <button onclick="copyText('CMD01')" class="px-2.5 py-1 bg-sg-600 hover:bg-sg-500 text-white rounded text-xs transition flex items-center space-x-1">
+                                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                    <span>Copiar</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Summary Quick Checklist Section 2 -->
+                        <div class="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center space-x-2">
+                                <i data-lucide="list-checks" class="w-4 h-4 text-sg-600"></i>
+                                <span>Checklist do Recebimento</span>
+                            </h3>
+                            <div class="space-y-2 text-xs" id="checklist-group-2">
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" onchange="updateChecklist2()" class="rounded border-slate-300 text-sg-600">
+                                    <span class="text-slate-700 dark:text-slate-300">E-mail do Pro Planning recebido</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" onchange="updateChecklist2()" class="rounded border-slate-300 text-sg-600">
+                                    <span class="text-slate-700 dark:text-slate-300">Sub CP cadastrado no Receipt Control</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" onchange="updateChecklist2()" class="rounded border-slate-300 text-sg-600">
+                                    <span class="text-slate-700 dark:text-slate-300">Pasta criada no formato <code>00. [Sub CP] [Nome]</code></span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" onchange="updateChecklist2()" class="rounded border-slate-300 text-sg-600">
+                                    <span class="text-slate-700 dark:text-slate-300">Anexo bloqueado com senha <code>CMD01</code></span>
+                                </label>
+                            </div>
+                        </div>
+
                     </div>
+
                 </div>
 
+            </section>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-4">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500">
+                <div class="flex items-center space-x-2">
+                    <span class="font-bold text-slate-700 dark:text-slate-300">State Grid Brazil Holding</span>
+                    <span>•</span>
+                    <span>Contract Management Division (CMD) 2026</span>
+                </div>
+                <div class="mt-2 sm:mt-0 text-slate-400">
+                    Sistema de Documentação e Guia Operacional
+                </div>
             </div>
-        </div>
+        </footer>
 
-    </main>
-
-    <!-- Rodapé -->
-    <footer class="bg-white border-t border-slate-200 mt-auto py-4 text-center text-xs text-slate-500">
-        State Grid Brazil Holding — Contract Management Division (CMD) © 2026
-    </footer>
-
-    <!-- Notificação Toast de Cópia -->
-    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-lg shadow-lg text-sm flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 z-50">
-        <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
-        <span data-i18n="toastMsg">Caminho copiado para a área de transferência!</span>
     </div>
 
-    <!-- Script de Tradução e Interatividade -->
+    <!-- Application Script -->
     <script>
+        // Initialize Lucide Icons
         lucide.createIcons();
 
-        const translations = {
-            pt: {
-                headerTitle: "Contract Management Division (CMD)",
-                searchPlaceholder: "Pesquisar procedimentos...",
-                tab1Name: "Atualização CMD & FUP 2026",
-                tab2Name: "Preenchimento e Gestão de Recebimento",
-                sec1Title: "Guia Passo a Passo de Consolidação das Planilhas FUP e Atualização de Dados",
-                sec1Subtitle: "Siga rigorosamente a sequência de 6 passos para garantir a integridade dos indicadores do Dashboard.",
-                step1Badge: "Passo 1",
-                step1Title: "Copiar FUPs",
-                step1Desc: "Copiar as planilhas FUP da pasta da Rede de Procurement para início do ciclo.",
-                step2Badge: "Passo 2",
-                step2Title: "Colar FUPs",
-                step2Desc: "Inserir os arquivos FUP atualizados na pasta FUP 2026 do SharePoint CMD.",
-                step3Badge: "Passo 3",
-                step3Title: "Copiar Base APP",
-                step3Desc: "Copiar o arquivo '2026 Procurement Plan - Base' da pasta de origem.",
-                step4Badge: "Passo 4",
-                step4Title: "Colar Base APP",
-                step4Desc: "Colar na pasta de destino 'APP 2026' no ambiente do Contracts Division.",
-                step5Badge: "Passo 5",
-                step5Title: "Abrir CMD Control",
-                step5Desc: "Abrir a planilha mestre 'CMD Control 2026'. Habilitar macros e verificar nuvem.",
-                step6Badge: "Passo 6",
-                step6Title: "Rodar Macro & Refresh",
-                step6Desc: "Clicar em 'Update FUP' no Dashboard e efetuar 'Dados > Atualizar Tudo'.",
-                step6Alert: "⚠️ Validar totalizadores e aguardar sincronização do OneDrive.",
-                step6Done: "Ciclo Concluído",
-                copyPathBtn: "Copiar Caminho",
-                sec2Title: "Gestão de Recebimento & Verificação da Lista Comercial",
-                sec2Subtitle: "Procedimento operacional padrão para análise de Sub CP, registro no Receipt Control e minuta.",
-                phase1Badge: "Fase 1",
-                phase1Title: "Triagem & Acesso",
-                phase1Desc: "Recebimento do e-mail do Pro Planning e abertura da planilha CMD Control 2026 no OneDrive.",
-                phase1Tag: "E-mail Pro Planning",
-                phase2Badge: "Fase 2",
-                phase2Title: "Registro & Pasta",
-                phase2Desc: "Cadastro do Sub CP na aba Receipt Control e criação da pasta do projeto no formato padrão.",
-                phase3Badge: "Fase 3",
-                phase3Title: "Análise Técnica",
-                phase3Desc: "Avaliação da lista comercial, preenchimento de datas e parecer de minuta com senha CMD01.",
-                phase4Badge: "Fase 4",
-                phase4Title: "Devolutiva & Bidding",
-                phase4Desc: "Reenvio da lista comercial bloqueada e minuta ao Pro Planning para início do processo de bidding.",
-                phase4Tag: "Início do Bidding",
-                toastMsg: "Caminho copiado para a área de transferência!"
-            },
-            en: {
-                headerTitle: "Contract Management Division (CMD)",
-                searchPlaceholder: "Search procedures...",
-                tab1Name: "CMD & FUP 2026 Update",
-                tab2Name: "Receipt Control & Filling Guide",
-                sec1Title: "Step-by-Step Guide for FUP Consolidation and Data Update",
-                sec1Subtitle: "Strictly follow the 6-step sequence to ensure Dashboard indicators integrity.",
-                step1Badge: "Step 1",
-                step1Title: "Copy FUPs",
-                step1Desc: "Copy FUP spreadsheets from the Procurement Network folder to start the cycle.",
-                step2Badge: "Step 2",
-                step2Title: "Paste FUPs",
-                step2Desc: "Insert updated FUP files into the CMD SharePoint FUP 2026 folder.",
-                step3Badge: "Step 3",
-                step3Title: "Copy APP Base",
-                step3Desc: "Copy the '2026 Procurement Plan - Base' file from the source folder.",
-                step4Badge: "Step 4",
-                step4Title: "Paste APP Base",
-                step4Desc: "Paste into the 'APP 2026' destination folder in the Contracts Division environment.",
-                step5Badge: "Step 5",
-                step5Title: "Open CMD Control",
-                step5Desc: "Open the master spreadsheet 'CMD Control 2026'. Enable macros and check cloud.",
-                step6Badge: "Step 6",
-                step6Title: "Run Macro & Refresh",
-                step6Desc: "Click 'Update FUP' on Dashboard and perform 'Data > Refresh All'.",
-                step6Alert: "⚠️ Validate totals and wait for OneDrive synchronization.",
-                step6Done: "Cycle Complete",
-                copyPathBtn: "Copy Path",
-                sec2Title: "Receipt Management & Commercial List Verification",
-                sec2Subtitle: "Standard operational procedure for Sub CP analysis, Receipt Control registry and draft.",
-                phase1Badge: "Phase 1",
-                phase1Title: "Triage & Access",
-                phase1Desc: "Receive Pro Planning email and open CMD Control 2026 spreadsheet on OneDrive.",
-                phase1Tag: "Pro Planning Email",
-                phase2Badge: "Phase 2",
-                phase2Title: "Registry & Folder",
-                phase2Desc: "Register Sub CP in Receipt Control tab and create project folder in standard format.",
-                phase3Badge: "Phase 3",
-                phase3Title: "Technical Analysis",
-                phase3Desc: "Evaluate commercial list, fill in dates and draft review using password CMD01.",
-                phase4Badge: "Phase 4",
-                phase4Title: "Feedback & Bidding",
-                phase4Desc: "Resend locked commercial list and draft to Pro Planning to start the bidding process.",
-                phase4Tag: "Start Bidding",
-                toastMsg: "Path copied to clipboard!"
-            },
-            zh: {
-                headerTitle: "合同管理部 (CMD)",
-                searchPlaceholder: "搜索程序...",
-                tab1Name: "CMD & FUP 2026 更新",
-                tab2Name: "接收控制与填报指南",
-                sec1Title: "FUP表格整合与数据更新分步指南",
-                sec1Subtitle: "严格遵循6个步骤的顺序，以确保仪表板指标的完整性。",
-                step1Badge: "第一步",
-                step1Title: "复制FUP",
-                step1Desc: "从采购网络文件夹中复制FUP电子表格以开始周期。",
-                step2Badge: "第二步",
-                step2Title: "粘贴FUP",
-                step2Desc: "将更新后的FUP文件插入CMD SharePoint FUP 2026文件夹。",
-                step3Badge: "第三步",
-                step3Title: "复制APP基础表",
-                step3Desc: "从源文件夹复制 '2026 Procurement Plan - Base' 文件。",
-                step4Badge: "第四步",
-                step4Title: "粘贴APP基础表",
-                step4Desc: "粘贴到合同管理环境中的 'APP 2026' 目标文件夹中。",
-                step5Badge: "第五步",
-                step5Title: "打开CMD Control",
-                step5Desc: "打开主电子表格 'CMD Control 2026'。启用宏并检查云端。",
-                step6Badge: "第六步",
-                step6Title: "运行宏与刷新",
-                step6Desc: "点击仪表板上的 'Update FUP' 并执行 '数据 > 全部刷新'。",
-                step6Alert: "⚠️ 验证总计并等待OneDrive同步。",
-                step6Done: "周期完成",
-                copyPathBtn: "复制路径",
-                sec2Title: "接收管理与商业清单核对",
-                sec2Subtitle: "用于Sub CP分析、接收控制登记和底稿审查的标准操作程序。",
-                phase1Badge: "阶段 1",
-                phase1Title: "分诊与访问",
-                phase1Desc: "接收Pro Planning邮件并在OneDrive上打开CMD Control 2026电子表格。",
-                phase1Tag: "Pro Planning 邮件",
-                phase2Badge: "阶段 2",
-                phase2Title: "登记与文件夹",
-                phase2Desc: "在Receipt Control标签页中登记Sub CP并按标准格式创建项目文件夹。",
-                phase3Badge: "阶段 3",
-                phase3Title: "技术分析",
-                phase3Desc: "评估商业清单，填写日期并使用密码 CMD01 进行底稿审查。",
-                phase4Badge: "阶段 4",
-                phase4Title: "反馈与招标",
-                phase4Desc: "将锁定后的商业清单和底稿重新发送给Pro Planning以启动招标流程。",
-                phase4Tag: "启动招标",
-                toastMsg: "路径已复制到剪贴板！"
+        // Dark/Light Theme Switching Logic
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        themeToggleBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+
+        // Tab Switching Logic
+        function switchTab(tabIndex) {
+            const tab1 = document.getElementById('tab-content-1');
+            const tab2 = document.getElementById('tab-content-2');
+            const btn1 = document.getElementById('tab-btn-1');
+            const btn2 = document.getElementById('tab-btn-2');
+
+            if (tabIndex === 1) {
+                tab1.classList.remove('hidden');
+                tab2.classList.add('hidden');
+                btn1.className = "tab-btn px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg flex items-center space-x-2 transition whitespace-nowrap bg-sg-600 text-white shadow-sm";
+                btn2.className = "tab-btn px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg flex items-center space-x-2 transition whitespace-nowrap text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800";
+            } else {
+                tab2.classList.remove('hidden');
+                tab1.classList.add('hidden');
+                btn2.className = "tab-btn px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg flex items-center space-x-2 transition whitespace-nowrap bg-sg-600 text-white shadow-sm";
+                btn1.className = "tab-btn px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg flex items-center space-x-2 transition whitespace-nowrap text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800";
             }
-        };
-
-        function changeLanguage(lang) {
-            const elements = document.querySelectorAll('[data-i18n]');
-            elements.forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (translations[lang] && translations[lang][key]) {
-                    el.textContent = translations[lang][key];
-                }
-            });
-
-            const placeholders = document.querySelectorAll('[data-i18n-placeholder]');
-            placeholders.forEach(el => {
-                const key = el.getAttribute('data-i18n-placeholder');
-                if (translations[lang] && translations[lang][key]) {
-                    el.placeholder = translations[lang][key];
-                }
-            });
         }
 
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(el => {
-                el.classList.remove('border-teal-600', 'text-teal-700');
-                el.classList.add('border-transparent', 'text-slate-500');
-            });
-
-            document.getElementById('content-' + tabId).classList.remove('hidden');
-            const activeBtn = document.getElementById('btn-' + tabId);
-            activeBtn.classList.remove('border-transparent', 'text-slate-500');
-            activeBtn.classList.add('border-teal-600', 'text-teal-700');
+        // Copy Text Helper to Clipboard
+        function copyText(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text);
+            } else {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-999999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                document.execCommand('copy');
+                textArea.remove();
+            }
+            showToast("Caminho/Texto copiado para a área de transferência!");
         }
 
-        function copyToClipboard(button) {
-            const pathText = button.previousElementSibling.innerText;
-            navigator.clipboard.writeText(pathText).then(() => {
-                const toast = document.getElementById('toast');
-                toast.classList.remove('translate-y-20', 'opacity-0');
-                setTimeout(() => {
-                    toast.classList.add('translate-y-20', 'opacity-0');
-                }, 2500);
-            });
+        // Show Toast Notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            toastMsg.innerText = message;
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
         }
 
-        function filterContent() {
-            const input = document.getElementById('searchInput').value.toLowerCase();
-            const cards = document.querySelectorAll('.searchable-grid > div');
+        // Checklist 1 Counter
+        function updateChecklist() {
+            const checkboxes = document.querySelectorAll('#checklist-group-1 input[type="checkbox"]');
+            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            const counter = document.getElementById('checklist-counter');
+            counter.innerText = `${checkedCount}/${checkboxes.length} OK`;
+            
+            if (checkedCount === checkboxes.length) {
+                counter.className = "text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200 px-2 py-0.5 rounded-full";
+            } else {
+                counter.className = "text-[10px] font-bold bg-sg-100 text-sg-800 dark:bg-sg-900 dark:text-sg-200 px-2 py-0.5 rounded-full";
+            }
+        }
+
+        function updateChecklist2() {
+            // Functionality reserved for checkbox updates on tab 2
+        }
+
+        // Live Filter / Search Filter
+        document.getElementById('global-search').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.bg-white, .bg-slate-50, .p-4');
+            
+            if (query === '') {
+                cards.forEach(card => card.style.opacity = '1');
+                return;
+            }
 
             cards.forEach(card => {
                 const text = card.innerText.toLowerCase();
-                if (text.includes(input)) {
-                    card.style.display = "";
+                if (text.includes(query)) {
+                    card.style.opacity = '1';
                 } else {
-                    card.style.display = "none";
+                    card.style.opacity = '0.4';
                 }
             });
-        }
+        });
     </script>
 </body>
 </html>
