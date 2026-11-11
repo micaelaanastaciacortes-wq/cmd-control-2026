@@ -47,9 +47,16 @@
         .dark .custom-scrollbar::-webkit-scrollbar-thumb {
             background: rgba(75, 85, 99, 0.5);
         }
+        /* Esconde a barra superior padrão do Google Translate para manter o visual limpo */
+        .goog-te-banner-frame.skiptranslate { display: none !important; }
+        body { top: 0px !important; }
+        #google_translate_element { display: none; }
     </style>
 </head>
 <body class="h-full bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-200">
+    <!-- Elemento oculto do Google Translate -->
+    <div id="google_translate_element"></div>
+
     <div id="app" class="min-h-screen flex flex-col">
 
         <!-- Top Header Navigation -->
@@ -78,6 +85,15 @@
                             <input type="text" id="global-search" placeholder="Pesquisar passos ou pastas..." 
                                 class="w-full pl-9 pr-4 py-1.5 text-xs bg-slate-100 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-sg-500 dark:text-slate-200">
                             <i data-lucide="search" class="w-4 h-4 absolute left-2.5 top-2 text-slate-400"></i>
+                        </div>
+
+                        <!-- Seletor de Idiomas (PT, EN, ZH) -->
+                        <div class="relative">
+                            <select id="language-select" onchange="changeLanguage(this.value)" class="py-1.5 px-2.5 text-xs bg-slate-100 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-sg-500 text-slate-700 dark:text-slate-200 font-medium cursor-pointer">
+                                <option value="pt">PT 🇧🇷</option>
+                                <option value="en">EN 🇺🇸</option>
+                                <option value="zh-CN">ZH 🇨🇳</option>
+                            </select>
                         </div>
 
                         <!-- Theme Toggle Button -->
@@ -697,8 +713,29 @@
 
     </div>
 
+    <!-- Script de Integração do Google Translate -->
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'pt',
+                includedLanguages: 'pt,en,zh-CN',
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
     <!-- Application Script -->
     <script>
+        // Função para mudar o idioma dinamicamente via seletor
+        function changeLanguage(langCode) {
+            const selectElem = document.querySelector('.goog-te-combo');
+            if (selectElem) {
+                selectElem.value = langCode;
+                selectElem.dispatchEvent(new Event('change'));
+            }
+        }
+
         // Initialize Lucide Icons
         lucide.createIcons();
 
